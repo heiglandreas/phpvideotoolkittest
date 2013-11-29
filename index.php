@@ -33,11 +33,25 @@ require_once 'vendor/autoload.php';
 
 $config = include 'config.php';
 
+$testfile = 'BigBuckBunny_320x180.mp4';
+if (! file_exists($testfile)) {
+    $url = "http://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4";
+    set_time_limit(0);
+    $fp = fopen (dirname(__FILE__) . '/' . $testfile, 'w+');//This is the file where we save the    information
+    $ch = curl_init(str_replace(" ","%20",$url));//Here is the file we are downloading, replace spaces with %20
+    curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+    curl_setopt($ch, CURLOPT_FILE, $fp); // write curl response to file
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_exec($ch); // get curl response
+    curl_close($ch);
+    fclose($fp);
+}
+
 $ffmpeg = new PHPVideoToolkit\FfmpegParser($config);
 echo sprintf('ffmpeg is available: %s', $ffmpeg->isAvailable()?'true':false);
 echo sprintf('ffmpeg_version is %s', $ffmpeg->getVersion()['version']);
 
 
 $parser = new PHPVideoToolkit\MediaParser($config);
-$data = $parser->getFileInformation('BigBuckBunny_320x180.mp4');
+$data = $parser->getFileInformation($testfile);
 echo '<pre>'.print_r($data, true).'</pre>';
